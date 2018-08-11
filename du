@@ -1,0 +1,26 @@
+#!/bin/bash
+
+#to prevent problems with unexpanded glob being passed to stat in empty directories
+shopt -s nullglob
+declare -i dirSize
+declare -i fileSize
+path=. 
+
+function print_dir_size {
+dirSize=0
+for f in "$path"/*
+do
+   if [[ -d $f ]]; then
+       oldpath=$path
+       path=$f
+       print_dir_size
+       path=$oldpath
+   fi
+   fileSize="$(stat $f --printf=%B)"
+   dirSize=$(($dirSize + $fileSize))  
+done
+   echo "$path size $dirSize"
+}
+
+print_dir_size
+shopt -u nullglob
